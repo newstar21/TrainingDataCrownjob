@@ -1,0 +1,32 @@
+name: Weekly Garmin Max Report
+
+on:
+  schedule:
+    - cron: '0 18 * * 0'  # Jeden Sonntag 20:00 Uhr MESZ (18:00 UTC)
+  workflow_dispatch:       # Optional: manuell starten in GitHub UI
+
+jobs:
+  generate-and-send:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          pip install garminconnect
+
+      - name: Run Garmin Maximal Report
+        env:
+          GC_EMAIL: ${{ secrets.GC_EMAIL }}
+          GC_PASSWORD: ${{ secrets.GC_PASSWORD }}
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+        run: python garmin_report_email.py
