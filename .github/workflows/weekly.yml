@@ -19,8 +19,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install Dependencies
-        run: |
-          pip install garminconnect
+        run: pip install garminconnect python-dotenv
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
