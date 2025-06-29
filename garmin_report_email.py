@@ -6,9 +6,6 @@ from email.message import EmailMessage
 
 from garminconnect import Garmin
 
-#from dotenv import load_dotenv
-#load_dotenv()
-
 
 # --- Garmin Login ---
 GC_EMAIL = os.environ['GC_EMAIL']
