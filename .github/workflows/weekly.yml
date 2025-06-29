@@ -2,8 +2,8 @@ name: Weekly Garmin Max Report
 
 on:
   schedule:
-    - cron: '0 18 * * 0'  # Sonntag 20:00 Uhr MEZ (18:00 UTC)
-  workflow_dispatch:       # Optional: manuell starten
+    - cron: '0 18 * * 0'  # Jeden Sonntag um 20:00 Uhr MEZ (18:00 UTC)
+  workflow_dispatch:       # Optional: manuell aus GitHub UI startbar
 
 jobs:
   generate-and-send:
@@ -13,16 +13,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: List Repository Files (Debug)
+        run: ls -la ${{ github.workspace }}
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install dependencies
+        working-directory: ${{ github.workspace }}
         run: |
           pip install -r requirements.txt
 
       - name: Run Garmin Maximal Report
+        working-directory: ${{ github.workspace }}
         env:
           GC_EMAIL: ${{ secrets.GC_EMAIL }}
           GC_PASSWORD: ${{ secrets.GC_PASSWORD }}
