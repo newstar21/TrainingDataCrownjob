@@ -2,8 +2,8 @@ name: Weekly Garmin Max Report
 
 on:
   schedule:
-    - cron: '0 16 * * 0'  # Jeden Sonntag 20:00 Uhr MESZ (18:00 UTC)
-  workflow_dispatch:       # Optional: manuell starten in GitHub UI
+    - cron: '0 18 * * 0'  # Sonntag 20:00 Uhr MEZ (18:00 UTC)
+  workflow_dispatch:       # Optional: manuell starten
 
 jobs:
   generate-and-send:
@@ -18,10 +18,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Dependencies
-        run: pip install garminconnect python-dotenv
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
 
       - name: Run Garmin Maximal Report
         env:
