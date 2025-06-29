@@ -21,6 +21,8 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install garminconnect
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
 
       - name: Run Garmin Maximal Report
         env:
