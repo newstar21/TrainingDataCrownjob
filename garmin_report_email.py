@@ -59,7 +59,7 @@ for act in activities:
 # --- Physiologische Daten ---
 try:
     stats = client.get_stats_and_body(last_sunday.isoformat())
-    training_status = client.get_training_status()
+    training_status = client.get_training_status(str(last_sunday))  # ✅ FIX
     hrv_status = client.get_hrv_status()
     sleep_data = client.get_sleep_data(last_sunday.isoformat())
     body_battery = client.get_body_battery()
