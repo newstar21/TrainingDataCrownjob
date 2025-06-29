@@ -2,7 +2,7 @@ name: Weekly Garmin Max Report
 
 on:
   schedule:
-    - cron: '0 18 * * 0'  # Jeden Sonntag 20:00 Uhr MESZ (18:00 UTC)
+    - cron: '0 16 * * 0'  # Jeden Sonntag 20:00 Uhr MESZ (18:00 UTC)
   workflow_dispatch:       # Optional: manuell starten in GitHub UI
 
 jobs:
