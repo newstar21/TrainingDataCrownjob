@@ -7,6 +7,9 @@ from email.message import EmailMessage
 from garminconnect import Garmin
 
 from dotenv import load_dotenv
+
+from HelperClass import HelperClass
+
 load_dotenv()
 
 
@@ -22,6 +25,7 @@ EMAIL_RECEIVER = os.environ['EMAIL_RECEIVER']
 # --- Authenticate Garmin ---
 client = Garmin(GC_EMAIL, GC_PASSWORD)
 client.login()
+helper = HelperClass
 
 today = datetime.now().date()
 last_sunday = today - timedelta(days=today.weekday() + 1)
@@ -58,88 +62,37 @@ for act in activities:
 
 # --- Physiologische Daten ---
 try:
-    stats = client.get_stats_and_body(last_sunday.isoformat())
-    training_status = client.get_training_status(str(last_sunday))  # ✅ FIX
+    userProfile = client.get_user_profile()
+    training_status = client.get_training_status(str(today)) # ✅ FIX
     hrv_status = client.get_hrv_data(str(today))
-    sleep_data = client.get_sleep_data(last_sunday.isoformat())
-    body_battery = client.get_body_battery()
-    readiness = client.get_training_readiness()
-    stress_data = client.get_stress_details(last_sunday.isoformat())
 
-    fitness_age = stats.get("fitnessAge")
-    vo2max = stats.get("vo2Max")
-    lactate_threshold = stats.get("lactateThreshold")
-    weight = stats.get("weight")
-    body_fat = stats.get("bodyFat")
-    resting_hr = stats.get("restingHeartRate")
-
-    training_load = training_status.get("trainingLoad")
-    recovery_time = client.get_recovery_time()
-    training_status_summary = training_status.get("trainingStatus")
-
-    hrv_avg_value = hrv_status['hrvSummary']['weeklyAvg']
-    hrv_state = hrv_status['hrvSummary']['status']
-
-    sleep_score = sleep_data.get("sleepScore")
-    sleep_phases = sleep_data.get("sleepLevelsMap")
-    stress_level = sleep_data.get("avgStressLevel")
-
-    bb_avg = body_battery.get("average")
-    bb_min = body_battery.get("min")
-    bb_max = body_battery.get("max")
-
-    readiness_score = readiness.get("trainingReadinessScore")
-    readiness_status = readiness.get("trainingReadinessStatus")
-
-    stress_hours = stress_data.get("stressLevelValues")
+    vo2Max = userProfile.get("vo2Max")
+    lactateThresholdSpeed = helper.convert_speed_to_pace(userProfile.get("lactateThresholdSpeed"))
+    lactateThresholdHeartRate = userProfile.get("lactateThresholdHeartRate")
+    hrv_average_value = hrv_status.get("weeklyAvg")
+    hrvStatus = hrv_status.get("status")
 
 except Exception as e:
     print("Fehler beim Laden physiologischer Daten:", e)
 
-    fitness_age = vo2max = lactate_threshold = weight = body_fat = resting_hr = None
-    training_load = recovery_time = training_status_summary = None
-    hrv_avg_value = hrv_state = None
-    sleep_score = stress_level = sleep_phases = None
-    bb_avg = bb_min = bb_max = None
-    readiness_score = readiness_status = None
-    stress_hours = None
+    vo2Max = None
+    lactateThresholdSpeed = None
+    lactateThresholdHeartRate= None
+    hrv_average_value = None
+    hrvStatus = None
 
 # --- Assemble Report ---
 report = {
     "week": f"{last_sunday.isoformat()} - {today.isoformat()}",
     "fitness": {
-        "fitness_age": fitness_age,
-        "vo2max": vo2max,
-        "lactate_threshold": lactate_threshold,
-        "weight_kg": weight,
-        "body_fat_percent": body_fat,
-        "resting_hr": resting_hr
-    },
-    "training_status": {
-        "status": training_status_summary,
-        "training_load": training_load,
-        "recovery_time_h": recovery_time
+        "vo2max": vo2Max,
+        "lactate_threshold": lactateThresholdSpeed,
+        "lactateThresholdHeartRate": lactateThresholdHeartRate
     },
     "hrv": {
-        "hrv_average_value": hrv_avg_value,
-        "status": hrv_state
-    },
-    "sleep": {
-        "score": sleep_score,
-        "phases": sleep_phases,
-        "avg_stress": stress_level
-    },
-    "body_battery": {
-        "avg": bb_avg,
-        "min": bb_min,
-        "max": bb_max
-    },
-    "training_readiness": {
-        "score": readiness_score,
-        "status": readiness_status
-    },
-    "stress_over_day": stress_hours,
-    "activities": activity_details
+        "hrv_average_value": hrv_average_value,
+        "status": hrvStatus
+    }
 }
 
 # --- Save JSON File Locally ---
