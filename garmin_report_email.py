@@ -60,7 +60,7 @@ for act in activities:
 try:
     stats = client.get_stats_and_body(last_sunday.isoformat())
     training_status = client.get_training_status(str(last_sunday))  # ✅ FIX
-    hrv_status = client.get_hrv_status()
+    hrv_status = client.get_hrv_data(str(today))
     sleep_data = client.get_sleep_data(last_sunday.isoformat())
     body_battery = client.get_body_battery()
     readiness = client.get_training_readiness()
@@ -77,8 +77,8 @@ try:
     recovery_time = client.get_recovery_time()
     training_status_summary = training_status.get("trainingStatus")
 
-    hrv_value = hrv_status.get("hrvValue")
-    hrv_state = hrv_status.get("status")
+    hrv_avg_value = hrv_status['hrvSummary']['weeklyAvg']
+    hrv_state = hrv_status['hrvSummary']['status']
 
     sleep_score = sleep_data.get("sleepScore")
     sleep_phases = sleep_data.get("sleepLevelsMap")
@@ -98,7 +98,7 @@ except Exception as e:
 
     fitness_age = vo2max = lactate_threshold = weight = body_fat = resting_hr = None
     training_load = recovery_time = training_status_summary = None
-    hrv_value = hrv_state = None
+    hrv_avg_value = hrv_state = None
     sleep_score = stress_level = sleep_phases = None
     bb_avg = bb_min = bb_max = None
     readiness_score = readiness_status = None
@@ -121,7 +121,7 @@ report = {
         "recovery_time_h": recovery_time
     },
     "hrv": {
-        "value": hrv_value,
+        "hrv_average_value": hrv_avg_value,
         "status": hrv_state
     },
     "sleep": {
