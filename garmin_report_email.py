@@ -66,32 +66,31 @@ try:
     training_status = client.get_training_status(str(today)) # ✅ FIX
     hrv_status = client.get_hrv_data(str(today))
 
-    vo2Max = userProfile.get("vo2Max")
-    lactateThresholdSpeed = helper.convert_speed_to_pace(userProfile.get("lactateThresholdSpeed"))
-    lactateThresholdHeartRate = userProfile.get("lactateThresholdHeartRate")
-    hrv_average_value = hrv_status.get("weeklyAvg")
-    hrvStatus = hrv_status.get("status")
+    vo2Max = userProfile["userData"].get("vo2MaxRunning")
+    lactateThresholdSpeed = "3:46 min/km"
+    lactateThresholdHeartRate = userProfile["userData"].get("lactateThresholdHeartRate")
+    hrv_status_weeklyAvg = hrv_status["hrvSummary"].get("weeklyAvg")
+    hrv_status_status = hrv_status["hrvSummary"].get("status")
+    hrv_status_lastNightAvg = hrv_status["hrvSummary"].get("lastNightAvg")
 
 except Exception as e:
     print("Fehler beim Laden physiologischer Daten:", e)
-
-    vo2Max = None
-    lactateThresholdSpeed = None
-    lactateThresholdHeartRate= None
-    hrv_average_value = None
-    hrvStatus = None
+    hrv_status_weeklyAvg = None
+    hrv_status_status = None
+    hrv_status_lastNightAvg = None
 
 # --- Assemble Report ---
 report = {
     "week": f"{last_sunday.isoformat()} - {today.isoformat()}",
     "fitness": {
         "vo2max": vo2Max,
-        "lactate_threshold": lactateThresholdSpeed,
-        "lactateThresholdHeartRate": lactateThresholdHeartRate
+       "lactateThresholdHeartRate": lactateThresholdHeartRate
     },
+    "activities": activity_details,
     "hrv": {
-        "hrv_average_value": hrv_average_value,
-        "status": hrvStatus
+        "hrv_status_weeklyAvg": hrv_status_weeklyAvg,
+        "status": hrv_status_status,
+        "lastNightAvg": hrv_status_lastNightAvg
     }
 }
 
