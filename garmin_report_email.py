@@ -61,36 +61,94 @@ for act in activities:
         print(f"Fehler bei Aktivität {act.get('activityId')}: {e}")
 
 # --- Physiologische Daten ---
+# --- UserProfile Daten ---
 try:
     userProfile = client.get_user_profile()
-    training_status = client.get_training_status(str(today)) # ✅ FIX
-    hrv_status = client.get_hrv_data(str(today))
-
     vo2Max = userProfile["userData"].get("vo2MaxRunning")
-    lactateThresholdSpeed = "3:46 min/km"
     lactateThresholdHeartRate = userProfile["userData"].get("lactateThresholdHeartRate")
+    lactateThresholdSpeed = "3:46 min/km"
+except Exception as e:
+    print("Fehler bei UserProfileDate", e)
+    vo2Max = None
+    lactateThresholdSpeed = None
+    lactateThresholdHeartRate = None
+
+# --- HRV Werte ---
+try:
+    hrv_status = client.get_hrv_data(str(today))
     hrv_status_weeklyAvg = hrv_status["hrvSummary"].get("weeklyAvg")
     hrv_status_status = hrv_status["hrvSummary"].get("status")
     hrv_status_lastNightAvg = hrv_status["hrvSummary"].get("lastNightAvg")
-
 except Exception as e:
-    print("Fehler beim Laden physiologischer Daten:", e)
+    print("Fehler bei HRV Werten", e)
     hrv_status_weeklyAvg = None
     hrv_status_status = None
     hrv_status_lastNightAvg = None
+
+# --- Training Status Werte ---
+try:
+    training_status = client.get_training_status(str(today))
+
+    load_data = list(training_status["mostRecentTrainingLoadBalance"]["metricsTrainingLoadBalanceDTOMap"].values())[0]
+    status_data = list(training_status["mostRecentTrainingStatus"]["latestTrainingStatusData"].values())[0]
+
+
+    monthlyLoadAerobicLow = load_data["monthlyLoadAerobicLow"]
+    monthlyLoadAerobicHigh = load_data["monthlyLoadAerobicHigh"]
+    monthlyLoadAnaerobic = load_data["monthlyLoadAnaerobic"]
+    trainingBalanceFeedbackPhrase = load_data["trainingBalanceFeedbackPhrase"]
+
+    trainingStatus = status_data["trainingStatus"]
+    trainingStatusFeedbackPhrase = status_data["trainingStatusFeedbackPhrase"]
+
+    acute = status_data["acuteTrainingLoadDTO"]
+    acwrPercent = acute["acwrPercent"]
+    acwrStatus = acute["acwrStatus"]
+    dailyTrainingLoadAcute = acute["dailyTrainingLoadAcute"]
+    dailyTrainingLoadChronic = acute["dailyTrainingLoadChronic"]
+except Exception as e:
+    print("Fehler beim Laden Training Satus Werte:", e)
+    monthlyLoadAerobicLow = None
+    monthlyLoadAerobicHigh = None
+    monthlyLoadAnaerobic = None
+    trainingBalanceFeedbackPhrase = None
+    trainingStatus = None
+    trainingStatusFeedbackPhrase = None
+    acute = None
+    acwrPercent = None
+    acwrStatus = None
+    dailyTrainingLoadAcute = None
+    dailyTrainingLoadChronic = None
+
 
 # --- Assemble Report ---
 report = {
     "week": f"{last_sunday.isoformat()} - {today.isoformat()}",
     "fitness": {
         "vo2max": vo2Max,
-       "lactateThresholdHeartRate": lactateThresholdHeartRate
+        "lactateThresholdHeartRate": lactateThresholdHeartRate
     },
     "activities": activity_details,
     "hrv": {
         "hrv_status_weeklyAvg": hrv_status_weeklyAvg,
         "status": hrv_status_status,
         "lastNightAvg": hrv_status_lastNightAvg
+    },
+    "monthlyLoad": {
+        "aerobicLow": monthlyLoadAerobicLow,
+        "aerobicHigh": monthlyLoadAerobicHigh,
+        "anaerobic": monthlyLoadAnaerobic,
+        "trainingBalanceFeedbackPhrase": trainingBalanceFeedbackPhrase
+    },
+    "trainingStatus": {
+        "status": trainingStatus,
+        "feedbackPhrase": trainingStatusFeedbackPhrase,
+        "acuteTrainingLoad": {
+            "acwrPercent": acwrPercent,
+            "acwrStatus": acwrStatus,
+            "dailyAcute": dailyTrainingLoadAcute,
+            "dailyChronic": dailyTrainingLoadChronic
+        }
     }
 }
 
