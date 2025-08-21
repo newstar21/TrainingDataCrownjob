@@ -1,15 +1,8 @@
 from pyarrow import null
-
+from datetime import datetime, timedelta
 
 class HelperClass(object):
     @staticmethod
-    def convert_speed_to_pace(speed):
-        try:
-            """ speed in m/s -> pace in min/km """
-            speed *= 10  # Garmin-Korrektur
-            pace_seconds = 1000 / speed
-            minutes = int(pace_seconds // 60)
-            seconds = round(pace_seconds % 60)
-            return f"{minutes}:{seconds:02d} min/km"
-        except:
-            return null()
+    def get_last_7_days():
+        today = datetime.now().date()
+        return [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(6, -1, -1)]

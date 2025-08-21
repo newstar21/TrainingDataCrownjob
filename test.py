@@ -231,21 +231,3 @@ report = {
 
 
 print(report)
-
-# --- Save JSON File Locally ---
-with open("garmin_report_full.json", "w") as f:
-    json.dump(report, f, indent=2)
-
-# --- Send Email ---
-msg = EmailMessage()
-msg['Subject'] = f"Garmin Maximalbericht – {last_sunday.isoformat()}"
-msg['From'] = EMAIL_SENDER
-msg['To'] = EMAIL_RECEIVER
-msg.set_content(f"Dein vollständiger Garmin-Wochenbericht ist im Anhang.")
-msg.add_attachment(json.dumps(report, indent=2), filename="garmin_report_full.json")
-
-with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-    smtp.login(EMAIL_SENDER, EMAIL_PASSWORD)
-    smtp.send_message(msg)
-
-print("✅ Garmin Maximalbericht gesendet und gespeichert.")
