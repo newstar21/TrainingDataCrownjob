@@ -230,4 +230,5 @@ report = {
 
 
 
-print(report)
+#print(report)
+print(client.get_max_metrics(str(last_sunday)))

@@ -1,22 +1,188 @@
-data = {'userId': 109761086, 'mostRecentVO2Max': {'userId': 109761086, 'generic': {'calendarDate': '2025-06-17', 'vo2MaxPreciseValue': 66.4, 'vo2MaxValue': 66.0, 'fitnessAge': None, 'fitnessAgeDescription': None, 'maxMetCategory': 0}, 'cycling': None, 'heatAltitudeAcclimation': {'calendarDate': '2025-06-20', 'altitudeAcclimationDate': '2025-06-20', 'previousAltitudeAcclimationDate': '2025-06-20', 'heatAcclimationDate': '2025-06-20', 'previousHeatAcclimationDate': '2025-06-19', 'altitudeAcclimation': 0, 'previousAltitudeAcclimation': 0, 'heatAcclimationPercentage': 50, 'previousHeatAcclimationPercentage': 52, 'heatTrend': 'DEACCLIMATIZING', 'altitudeTrend': None, 'currentAltitude': 28, 'previousAltitude': 0, 'acclimationPercentage': 0, 'previousAcclimationPercentage': 0, 'altitudeAcclimationLocalTimestamp': '2025-06-20T23:57:17.0'}}, 'mostRecentTrainingLoadBalance': {'userId': 109761086, 'metricsTrainingLoadBalanceDTOMap': {'3420895993': {'calendarDate': '2025-06-20', 'deviceId': 3420895993, 'monthlyLoadAerobicLow': 458.69794, 'monthlyLoadAerobicHigh': 594.48145, 'monthlyLoadAnaerobic': 694.22974, 'monthlyLoadAerobicLowTargetMin': 698, 'monthlyLoadAerobicLowTargetMax': 1535, 'monthlyLoadAerobicHighTargetMin': 837, 'monthlyLoadAerobicHighTargetMax': 1675, 'monthlyLoadAnaerobicTargetMin': 279, 'monthlyLoadAnaerobicTargetMax': 837, 'trainingBalanceFeedbackPhrase': 'AEROBIC_LOW_SHORTAGE', 'primaryTrainingDevice': True}}, 'recordedDevices': [{'deviceId': 3420895993, 'imageURL': 'https://res.garmin.com/en/products/010-02638-20/v/c1_01_md.png', 'deviceName': 'Forerunner 955 Solar', 'category': 0}]}, 'mostRecentTrainingStatus': {'userId': 109761086, 'latestTrainingStatusData': {'3420895993': {'calendarDate': '2025-06-20', 'sinceDate': '2025-06-20', 'weeklyTrainingLoad': None, 'trainingStatus': 7, 'timestamp': 1750453265000, 'deviceId': 3420895993, 'loadTunnelMin': None, 'loadTunnelMax': None, 'loadLevelTrend': None, 'sport': 'RUNNING', 'subSport': 'GENERIC', 'fitnessTrendSport': 'RUNNING', 'fitnessTrend': 2, 'trainingStatusFeedbackPhrase': 'PRODUCTIVE_8', 'trainingPaused': False, 'acuteTrainingLoadDTO': {'acwrPercent': 66, 'acwrStatus': 'HIGH', 'acwrStatusFeedback': 'FEEDBACK_4', 'dailyTrainingLoadAcute': 674, 'maxTrainingLoadChronic': 661.5, 'minTrainingLoadChronic': 352.8, 'dailyTrainingLoadChronic': 441, 'dailyAcuteChronicWorkloadRatio': 1.5}, 'primaryTrainingDevice': True}}, 'recordedDevices': [{'deviceId': 3420895993, 'imageURL': 'https://res.garmin.com/en/products/010-02638-20/v/c1_01_md.png', 'deviceName': 'Forerunner 955 Solar', 'category': 0}], 'showSelector': False, 'lastPrimarySyncDate': '2025-06-20'}, 'heatAltitudeAcclimationDTO': None}
+import json
+
+from pyarrow import null
 
 
-# Angenommen dein Dictionary heißt data
-load_data = list(data["mostRecentTrainingLoadBalance"]["metricsTrainingLoadBalanceDTOMap"].values())[0]
-status_data = list(data["mostRecentTrainingStatus"]["latestTrainingStatusData"].values())[0]
+sevenDayMaxMetricList = '''[{
+  "userProfileId": 109761086,
+  "totalKilocalories": 3145.0,
+  "activeKilocalories": 930.0,
+  "bmrKilocalories": 2215.0,
+  "wellnessKilocalories": 3145.0,
+  "burnedKilocalories": null,
+  "consumedKilocalories": null,
+  "remainingKilocalories": null,
+  "totalSteps": 17998,
+  "netCalorieGoal": null,
+  "totalDistanceMeters": 16995,
+  "wellnessDistanceMeters": 16995,
+  "wellnessActiveKilocalories": 930.0,
+  "netRemainingKilocalories": 930.0,
+  "userDailySummaryId": 109761086,
+  "calendarDate": "2025-06-10",
+  "rule": {
+    "typeId": 4,
+    "typeKey": "groups"
+  },
+  "uuid": "b2aca7e03d5d46bbbcd94459494b48cb",
+  "dailyStepGoal": 10000,
+  "wellnessStartTimeGmt": "2025-06-09T22:00:00.0",
+  "wellnessStartTimeLocal": "2025-06-10T00:00:00.0",
+  "wellnessEndTimeGmt": "2025-06-10T22:00:00.0",
+  "wellnessEndTimeLocal": "2025-06-11T00:00:00.0",
+  "durationInMilliseconds": 86400000,
+  "wellnessDescription": null,
+  "highlyActiveSeconds": 1597,
+  "activeSeconds": 8999,
+  "sedentarySeconds": 46584,
+  "sleepingSeconds": 29220,
+  "includesWellnessData": true,
+  "includesActivityData": true,
+  "includesCalorieConsumedData": false,
+  "privacyProtected": false,
+  "moderateIntensityMinutes": 6,
+  "vigorousIntensityMinutes": 25,
+  "floorsAscendedInMeters": 88.392,
+  "floorsDescendedInMeters": 85.689,
+  "floorsAscended": 29.0,
+  "floorsDescended": 28.11319,
+  "intensityMinutesGoal": 150,
+  "userFloorsAscendedGoal": 10,
+  "minHeartRate": 42,
+  "maxHeartRate": 174,
+  "restingHeartRate": 45,
+  "lastSevenDaysAvgRestingHeartRate": 47,
+  "source": "GARMIN",
+  "averageStressLevel": 26,
+  "maxStressLevel": 96,
+  "stressDuration": 19740,
+  "restStressDuration": 36900,
+  "activityStressDuration": 16680,
+  "uncategorizedStressDuration": 10620,
+  "totalStressDuration": 83940,
+  "lowStressDuration": 8700,
+  "mediumStressDuration": 6300,
+  "highStressDuration": 4740,
+  "stressPercentage": 23.52,
+  "restStressPercentage": 43.96,
+  "activityStressPercentage": 19.87,
+  "uncategorizedStressPercentage": 12.65,
+  "lowStressPercentage": 10.36,
+  "mediumStressPercentage": 7.51,
+  "highStressPercentage": 5.65,
+  "stressQualifier": "BALANCED",
+  "measurableAwakeDuration": 45600,
+  "measurableAsleepDuration": 27720,
+  "lastSyncTimestampGMT": null,
+  "minAvgHeartRate": 42,
+  "maxAvgHeartRate": 171,
+  "bodyBatteryChargedValue": 66,
+  "bodyBatteryDrainedValue": 76,
+  "bodyBatteryHighestValue": 100,
+  "bodyBatteryLowestValue": 24,
+  "bodyBatteryMostRecentValue": 24,
+  "bodyBatteryDuringSleep": 58,
+  "bodyBatteryAtWakeTime": 100,
+  "bodyBatteryVersion": 3.0,
+  "abnormalHeartRateAlertsCount": null,
+  "averageSpo2": null,
+  "lowestSpo2": null,
+  "latestSpo2": null,
+  "latestSpo2ReadingTimeGmt": null,
+  "latestSpo2ReadingTimeLocal": null,
+  "averageMonitoringEnvironmentAltitude": 445.0,
+  "restingCaloriesFromActivity": 34.0,
+  "bodyBatteryDynamicFeedbackEvent": {
+    "eventTimestampGmt": "2025-06-10T21:13:54",
+    "bodyBatteryLevel": "MODERATE",
+    "feedbackShortType": "SLEEP_PREPARATION_STRESSFUL_AND_ACTIVE_AND_INTENSIVE_EXERCISE",
+    "feedbackLongType": "SLEEP_PREPARATION_STRESSFUL_AND_ACTIVE_AND_INTENSIVE_EXERCISE"
+  },
+  "endOfDayBodyBatteryDynamicFeedbackEvent": {
+    "eventTimestampGmt": "2025-06-10T21:30:14",
+    "bodyBatteryLevel": "MODERATE",
+    "feedbackShortType": "SLEEP_TIME_PASSED_STRESSFUL_AND_ACTIVE_AND_INTENSIVE_EXERCISE",
+    "feedbackLongType": "SLEEP_TIME_PASSED_STRESSFUL_AND_ACTIVE_AND_INTENSIVE_EXERCISE"
+  },
+  "bodyBatteryActivityEventList": [
+    {
+      "eventType": "SLEEP",
+      "eventStartTimeGmt": "2025-06-09T22:28:14",
+      "timezoneOffset": 7200000,
+      "durationInMilliseconds": 29220000,
+      "bodyBatteryImpact": 58,
+      "feedbackType": "NONE",
+      "shortFeedback": "NONE",
+      "deviceId": 3420895993,
+      "activityName": null,
+      "activityType": null,
+      "activityId": null,
+      "eventUpdateTimeGmt": "2025-06-10T07:27:08"
+    },
+    {
+      "eventType": "ACTIVITY",
+      "eventStartTimeGmt": "2025-06-10T14:01:22",
+      "timezoneOffset": 7200000,
+      "durationInMilliseconds": 1320000,
+      "bodyBatteryImpact": -5,
+      "feedbackType": "EXERCISE_TRAINING_EFFECT_3",
+      "shortFeedback": "IMPROVING_TEMPO",
+      "deviceId": 3420895993,
+      "activityName": "Perugia - Montag – Intervallläufe (Anae",
+      "activityType": "running",
+      "activityId": 19390064517,
+      "eventUpdateTimeGmt": "2025-06-10T14:24:06"
+    }
+  ],
+  "avgWakingRespirationValue": 14.0,
+  "highestRespirationValue": 21.0,
+  "lowestRespirationValue": 7.0,
+  "latestRespirationValue": 14.0,
+  "latestRespirationTimeGMT": "2025-06-10T22:00:00.0",
+  "respirationAlgorithmVersion": 200
+}]'''
 
-# Gesuchte Werte
-monthlyLoadAerobicLow = load_data["monthlyLoadAerobicLow"]
-monthlyLoadAerobicHigh = load_data["monthlyLoadAerobicHigh"]
-monthlyLoadAnaerobic = load_data["monthlyLoadAnaerobic"]
-trainingBalanceFeedbackPhrase = load_data["trainingBalanceFeedbackPhrase"]
+sevenDaysSteps = []
+totalWalkingDistance = []
+total_calories = []
+active_calories = []
+bmr_calories = []
+min_heartRate = []
+max_heartRate = []
+resting_heartRate = []
+average_stress = []
+percentage_stress = []
+highest_bodyBattery = []
+lowest_bodyBattery = []
 
-trainingStatus = status_data["trainingStatus"]
-trainingStatusFeedbackPhrase = status_data["trainingStatusFeedbackPhrase"]
+sevenDayMaxMetricList = json.loads(sevenDayMaxMetricList)
+for dic in sevenDayMaxMetricList:
+    try:
 
-acute = status_data["acuteTrainingLoadDTO"]
-acwrPercent = acute["acwrPercent"]
-acwrStatus = acute["acwrStatus"]
-dailyTrainingLoadAcute = acute["dailyTrainingLoadAcute"]
-dailyTrainingLoadChronic = acute["dailyTrainingLoadChronic"]
+        sevenDaysSteps.append(dic.get("totalSteps"))
+        totalWalkingDistance.append(round(dic.get("totalDistanceMeters", 0) / 1000, 2))
+        total_calories.append(dic.get("totalKilocalories"))
+        active_calories.append(dic.get("activeKilocalories"))
+        bmr_calories.append(dic.get("bmrKilocalories"))
+        min_heartRate.append(dic.get("minHeartRate"))
+        max_heartRate.append(dic.get("maxHeartRate"))
+        resting_heartRate.append(dic.get("restingHeartRate"))
+        percentage_stress.append(dic.get("stressPercentage"))
+        highest_bodyBattery.append(dic.get("bodyBatteryHighestValue"))
+        lowest_bodyBattery.append(dic.get("bodyBatteryLowestValue"))
 
+    except Exception as e:
+        print(f"Fehler bei Max Metrics: {e}")
+        sevenDaysSteps.append(None)
+        totalWalkingDistance.append(None)
+        total_calories.append(None)
+        active_calories.append(None)
+        bmr_calories.append(None)
+        min_heartRate.append(None)
+        max_heartRate.append(None)
+        resting_heartRate.append(None)
+        percentage_stress.append(None)
+        highest_bodyBattery.append(None)
+        lowest_bodyBattery.append(None)
+
+print(sevenDaysSteps, totalWalkingDistance, total_calories, active_calories, lowest_bodyBattery)

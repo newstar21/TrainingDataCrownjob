@@ -78,9 +78,9 @@ except Exception as e:
 # --- HRV Werte ---
 try:
     hrv_status = client.get_hrv_data(str(today))
-    hrv_status_weeklyAvg = hrv_status["hrvSummary"].get("weeklyAvg")
-    hrv_status_status = hrv_status["hrvSummary"].get("status")
-    hrv_status_lastNightAvg = hrv_status["hrvSummary"].get("lastNightAvg")
+    hrv_status_weeklyAvg = hrv_status["hrvSummary"]["weeklyAvg"]
+    hrv_status_status = hrv_status["hrvSummary"]["status"]
+    hrv_status_lastNightAvg = hrv_status["hrvSummary"]["lastNightAvg"]
 except Exception as e:
     print("Fehler bei HRV Werten", e)
     hrv_status_weeklyAvg = None
@@ -128,6 +128,9 @@ sevenDayMaxMetricList = []
 for days in last7DateList:
     sevenDayMaxMetricList.append(client.get_max_metrics(str(days)))
 
+sevenDayMaxMetricList = json.dumps(sevenDayMaxMetricList)
+sevenDayMaxMetricList = json.loads(sevenDayMaxMetricList)
+
 sevenDaysSteps = []
 totalWalkingDistance = []
 total_calories = []
@@ -157,7 +160,7 @@ for dic in sevenDayMaxMetricList:
         lowest_bodyBattery.append(dic["bodyBatteryLowestValue"])
 
     except Exception as e:
-        print(f"Fehler beim HRV Werte: {e}")
+        print(f"Fehler bei Max Metrics: {e}")
         sevenDaysSteps.append(None)
         totalWalkingDistance.append(None)
         totalWalkingDistance.append(None)
@@ -202,31 +205,32 @@ report = {
             "dailyAcute": dailyTrainingLoadAcute,
             "dailyChronic": dailyTrainingLoadChronic
         }
-    },
-    "theLast7Days": {
-        "date": last7DateList,
-        "steps": sevenDaysSteps,
-        "distance_km": totalWalkingDistance,
-        "calories": {
-            "total": total_calories,
-            "active": active_calories,
-            "bmr": bmr_calories,
-        },
-        "heart_rate": {
-            "min": min_heartRate,
-            "max": max_heartRate,
-            "resting": resting_heartRate
-        },
-        "stress": {
-            "average": average_stress,
-            "percentage": percentage_stress
-        },
-        "body_battery": {
-            "highest": highest_bodyBattery,
-            "lowest": lowest_bodyBattery,
-        }
     }
+    # "theLast7Days": {
+    #     "date": last7DateList,
+    #     "steps": sevenDaysSteps,
+    #     "distance_km": totalWalkingDistance,
+    #     "calories": {
+    #         "total": total_calories,
+    #         "active": active_calories,
+    #         "bmr": bmr_calories,
+    #     },
+    #     "heart_rate": {
+    #         "min": min_heartRate,
+    #         "max": max_heartRate,
+    #         "resting": resting_heartRate
+    #     },
+    #     "stress": {
+    #         "average": average_stress,
+    #         "percentage": percentage_stress
+    #     },
+    #     "body_battery": {
+    #         "highest": highest_bodyBattery,
+    #         "lowest": lowest_bodyBattery,
+    #     }
+    # }
 }
+
 
 
 
