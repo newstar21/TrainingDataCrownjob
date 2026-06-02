@@ -1,0 +1,211 @@
+{
+  "week": "2026-05-31 - 2026-06-02",
+  "userProfile": {
+    "vo2max": 62.0,
+    "lactateThresholdHeartRate": 181,
+    "lactateThresholdSpeed": "3:46 min/km"
+  },
+  "activities": {
+    "summary": {
+      "totalActivities": 1,
+      "totalDurationMinutes": 17.69,
+      "totalDistanceKm": 0.0,
+      "totalCalories": 134.0,
+      "averageHeartRate": null,
+      "totalElevationGainM": 0
+    },
+    "details": [
+      {
+        "start_time": "2026-06-01 15:26:49",
+        "activity_type": {
+          "typeKey": "strength_training"
+        },
+        "duration_min": 17.69,
+        "distance_km": 0.0,
+        "avg_hr": 110.0,
+        "max_hr": 146.0,
+        "cadence": null,
+        "elevation_gain_m": null,
+        "training_effect": null,
+        "aerobic_effect": 0.4,
+        "anaerobic_effect": 0.5,
+        "calories": 134.0,
+        "power_avg": null,
+        "temp_avg": null,
+        "splits": []
+      }
+    ]
+  },
+  "sleep": {
+    "lastNight": {
+      "totalHours": 7.5,
+      "deepSleepHours": 2.1,
+      "remSleepHours": 1.8,
+      "lightSleepHours": 3.6,
+      "awakeHours": 0.0,
+      "qualityScore": 78,
+      "efficiencyPercent": 95.0,
+      "avgRespirationRate": 15.0,
+      "avgSpO2Percent": 97.5
+    }
+  },
+  "hrv": {
+    "weeklyAverage": 78,
+    "status": "BALANCED",
+    "lastNightAverage": 80
+  },
+  "trainingLoad": {
+    "monthly": {
+      "aerobicLow": 1457.5,
+      "aerobicHigh": 136.1,
+      "anaerobic": 1398.7,
+      "feedbackPhrase": "AEROBIC_HIGH_SHORTAGE"
+    },
+    "trainingStatus": {
+      "status": 4,
+      "feedbackPhrase": "MAINTAINING_1"
+    },
+    "acuteTrainingLoad": {
+      "acwrPercent": 29,
+      "acwrStatus": "LOW",
+      "dailyAcute": 572,
+      "dailyChronic": 814
+    }
+  },
+  "sevenDaySummary": {
+    "dates": [
+      "2026-05-27",
+      "2026-05-28",
+      "2026-05-29",
+      "2026-05-30",
+      "2026-05-31",
+      "2026-06-01",
+      "2026-06-02"
+    ],
+    "steps": [
+      5000,
+      6200,
+      7100,
+      5500,
+      6800,
+      4300,
+      5900
+    ],
+    "distanceKm": [
+      2.1,
+      2.5,
+      3.0,
+      2.3,
+      2.8,
+      1.9,
+      2.4
+    ],
+    "calories": {
+      "total": [
+        2100,
+        2300,
+        2450,
+        2200,
+        2400,
+        2050,
+        2250
+      ],
+      "active": [
+        450,
+        520,
+        620,
+        480,
+        550,
+        400,
+        480
+      ],
+      "bmr": [
+        1650,
+        1650,
+        1650,
+        1650,
+        1650,
+        1650,
+        1650
+      ]
+    },
+    "heartRate": {
+      "min": [
+        52,
+        50,
+        51,
+        52,
+        49,
+        53,
+        51
+      ],
+      "max": [
+        155,
+        162,
+        158,
+        160,
+        165,
+        152,
+        161
+      ],
+      "resting": [
+        56,
+        54,
+        55,
+        56,
+        53,
+        57,
+        55
+      ],
+      "avgByDay": [
+        103.5,
+        106.0,
+        104.5,
+        106.0,
+        107.0,
+        102.5,
+        106.0
+      ]
+    },
+    "stress": {
+      "average": [
+        35,
+        42,
+        38,
+        40,
+        45,
+        32,
+        38
+      ],
+      "percentage": [
+        28,
+        35,
+        32,
+        33,
+        38,
+        26,
+        31
+      ]
+    },
+    "bodyBattery": {
+      "highest": [
+        95,
+        92,
+        88,
+        94,
+        89,
+        97,
+        91
+      ],
+      "lowest": [
+        23,
+        18,
+        25,
+        20,
+        19,
+        28,
+        22
+      ]
+    }
+  }
+}

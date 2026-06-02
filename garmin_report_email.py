@@ -124,7 +124,8 @@ except Exception as e:
 
 # --- Schlaf Daten ---
 try:
-    sleep_data = client.get_sleep_data(str(today))
+    yesterday = today - timedelta(days=1)
+    sleep_data = client.get_sleep_data(str(yesterday))
     last_night_sleep = sleep_data.get("dailySleepDTO", {})
     
     sleep_start_time = last_night_sleep.get("sleepStartTimestampGMT")
@@ -197,9 +198,8 @@ for dic in sevenDayMaxMetricList:
         lowest_bodyBattery.append(dic["bodyBatteryLowestValue"])
 
     except Exception as e:
-        print(f"Fehler bei Max Metrics: {e}")
+        print(f"Fehler bei Max Metrics für {days}: {e}")
         sevenDaysSteps.append(None)
-        totalWalkingDistance.append(None)
         totalWalkingDistance.append(None)
         total_calories.append(None)
         active_calories.append(None)
