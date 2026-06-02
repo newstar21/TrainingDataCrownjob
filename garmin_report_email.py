@@ -122,6 +122,43 @@ except Exception as e:
     dailyTrainingLoadAcute = None
     dailyTrainingLoadChronic = None
 
+# --- Schlaf Daten ---
+try:
+    sleep_data = client.get_sleep_data(str(today))
+    last_night_sleep = sleep_data.get("dailySleepDTO", {})
+    
+    sleep_start_time = last_night_sleep.get("sleepStartTimestampGMT")
+    sleep_end_time = last_night_sleep.get("sleepEndTimestampGMT")
+    total_sleep_seconds = last_night_sleep.get("duration", 0)
+    total_sleep_hours = round(total_sleep_seconds / 3600, 2)
+    
+    sleep_stages = last_night_sleep.get("sleepLevels", [])
+    deep_sleep_seconds = sum([s.get("duration", 0) for s in sleep_stages if s.get("type") == 4])
+    rem_sleep_seconds = sum([s.get("duration", 0) for s in sleep_stages if s.get("type") == 3])
+    light_sleep_seconds = sum([s.get("duration", 0) for s in sleep_stages if s.get("type") == 2])
+    awake_seconds = sum([s.get("duration", 0) for s in sleep_stages if s.get("type") == 1])
+    
+    deep_sleep_hours = round(deep_sleep_seconds / 3600, 2)
+    rem_sleep_hours = round(rem_sleep_seconds / 3600, 2)
+    light_sleep_hours = round(light_sleep_seconds / 3600, 2)
+    awake_hours = round(awake_seconds / 3600, 2)
+    
+    sleep_quality = last_night_sleep.get("sleepQualityScore")
+    sleep_efficiency_percent = last_night_sleep.get("sleepEfficiency")
+    avg_resting_hr_sleep = last_night_sleep.get("averageRespirationValue")
+    avg_spo2_sleep = last_night_sleep.get("avgSpO2Value")
+except Exception as e:
+    print("Fehler bei Schlaf Daten:", e)
+    total_sleep_hours = None
+    deep_sleep_hours = None
+    rem_sleep_hours = None
+    light_sleep_hours = None
+    awake_hours = None
+    sleep_quality = None
+    sleep_efficiency_percent = None
+    avg_resting_hr_sleep = None
+    avg_spo2_sleep = None
+
 # --- Max Metrics ---
 
 sevenDayMaxMetricList = []
@@ -180,55 +217,82 @@ for dic in sevenDayMaxMetricList:
 # --- Assemble Report ---
 report = {
     "week": f"{last_sunday.isoformat()} - {today.isoformat()}",
-    "fitness": {
+    "userProfile": {
         "vo2max": vo2Max,
-        "lactateThresholdHeartRate": lactateThresholdHeartRate
+        "lactateThresholdHeartRate": lactateThresholdHeartRate,
+        "lactateThresholdSpeed": lactateThresholdSpeed
     },
-    "activities": activity_details,
+    "activities": {
+        "summary": {
+            "totalActivities": len(activity_details),
+            "totalDurationMinutes": round(sum([a.get("duration_min", 0) for a in activity_details]), 2),
+            "totalDistanceKm": round(sum([a.get("distance_km", 0) for a in activity_details]), 2),
+            "totalCalories": round(sum([a.get("calories", 0) for a in activity_details]), 2),
+            "averageHeartRate": round(sum([a.get("avg_hr", 0) if a.get("avg_hr") else 0 for a in activity_details]) / max(len(activity_details), 1), 1) if activity_details else None,
+            "totalElevationGainM": round(sum([a.get("elevation_gain_m", 0) if a.get("elevation_gain_m") else 0 for a in activity_details]), 2)
+        },
+        "details": activity_details
+    },
+    "sleep": {
+        "lastNight": {
+            "totalHours": total_sleep_hours,
+            "deepSleepHours": deep_sleep_hours,
+            "remSleepHours": rem_sleep_hours,
+            "lightSleepHours": light_sleep_hours,
+            "awakeHours": awake_hours,
+            "qualityScore": sleep_quality,
+            "efficiencyPercent": sleep_efficiency_percent,
+            "avgRespirationRate": avg_resting_hr_sleep,
+            "avgSpO2Percent": avg_spo2_sleep
+        }
+    },
     "hrv": {
-        "hrv_status_weeklyAvg": hrv_status_weeklyAvg,
+        "weeklyAverage": hrv_status_weeklyAvg,
         "status": hrv_status_status,
-        "lastNightAvg": hrv_status_lastNightAvg
+        "lastNightAverage": hrv_status_lastNightAvg
     },
-    "monthlyLoad": {
-        "aerobicLow": monthlyLoadAerobicLow,
-        "aerobicHigh": monthlyLoadAerobicHigh,
-        "anaerobic": monthlyLoadAnaerobic,
-        "trainingBalanceFeedbackPhrase": trainingBalanceFeedbackPhrase
-    },
-    "trainingStatus": {
-        "status": trainingStatus,
-        "feedbackPhrase": trainingStatusFeedbackPhrase,
+    "trainingLoad": {
+        "monthly": {
+            "aerobicLow": monthlyLoadAerobicLow,
+            "aerobicHigh": monthlyLoadAerobicHigh,
+            "anaerobic": monthlyLoadAnaerobic,
+            "feedbackPhrase": trainingBalanceFeedbackPhrase
+        },
+        "trainingStatus": {
+            "status": trainingStatus,
+            "feedbackPhrase": trainingStatusFeedbackPhrase
+        },
         "acuteTrainingLoad": {
             "acwrPercent": acwrPercent,
             "acwrStatus": acwrStatus,
             "dailyAcute": dailyTrainingLoadAcute,
             "dailyChronic": dailyTrainingLoadChronic
         }
+    },
+    "sevenDaySummary": {
+        "dates": last7DateList,
+        "steps": sevenDaysSteps,
+        "distanceKm": totalWalkingDistance,
+        "calories": {
+            "total": total_calories,
+            "active": active_calories,
+            "bmr": bmr_calories
+        },
+        "heartRate": {
+            "min": min_heartRate,
+            "max": max_heartRate,
+            "resting": resting_heartRate,
+            "avgByDay": [round((min_heartRate[i] + max_heartRate[i]) / 2, 1) if min_heartRate[i] and max_heartRate[i] else None for i in range(len(last7DateList))]
+        },
+        "stress": {
+            "average": average_stress,
+            "percentage": percentage_stress
+        },
+        "bodyBattery": {
+            "highest": highest_bodyBattery,
+            "lowest": lowest_bodyBattery
+        }
     }
-    # "theLast7Days": {
-    #     "date": last7DateList,
-    #     "steps": sevenDaysSteps,
-    #     "distance_km": totalWalkingDistance,
-    #     "calories": {
-    #         "total": total_calories,
-    #         "active": active_calories,
-    #         "bmr": bmr_calories,
-    #     },
-    #     "heart_rate": {
-    #         "min": min_heartRate,
-    #         "max": max_heartRate,
-    #         "resting": resting_heartRate
-    #     },
-    #     "stress": {
-    #         "average": average_stress,
-    #         "percentage": percentage_stress
-    #     },
-    #     "body_battery": {
-    #         "highest": highest_bodyBattery,
-    #         "lowest": lowest_bodyBattery,
-    #     }
-    # }
 }
 
 
@@ -236,20 +300,53 @@ report = {
 
 print(report)
 
+# --- Generiere Report Zusammenfassung ---
+report_summary = helper.format_report_summary(report)
+print("\n" + "="*60)
+print("📊 GARMIN WOCHENBERICHT ZUSAMMENFASSUNG")
+print("="*60)
+print(report_summary)
+print("="*60 + "\n")
+
 # --- Save JSON File Locally ---
 with open("garmin_report_full.json", "w") as f:
-    json.dump(report, f, indent=2)
+    json.dump(report, f, indent=2, ensure_ascii=False)
 
 # --- Send Email ---
 msg = EmailMessage()
-msg['Subject'] = f"Garmin Maximalbericht – {last_sunday.isoformat()}"
+msg['Subject'] = f"🏃 Garmin Wochenbericht – {last_sunday.isoformat()} bis {today.isoformat()}"
 msg['From'] = EMAIL_SENDER
 msg['To'] = EMAIL_RECEIVER
-msg.set_content(f"Dein vollständiger Garmin-Wochenbericht ist im Anhang.")
-msg.add_attachment(json.dumps(report, indent=2), filename="garmin_report_full.json")
+
+# Erstelle HTML-Body mit Zusammenfassung
+email_body = f"""
+Hallo,
+
+anbei ist dein detaillierter Garmin-Trainingsbericht für die Woche vom {last_sunday.isoformat()} bis {today.isoformat()}.
+
+ZUSAMMENFASSUNG:
+{report_summary}
+
+Der vollständige JSON-Report mit allen Daten ist im Anhang für die Analyse durch Gemini AI verfügbar.
+
+---
+Dieser Bericht enthält:
+✓ Alle Trainingsaktivitäten mit Details
+✓ Schlafdaten (Dauer, Qualität, Schlafphasen)
+✓ HRV & Herzratenvariabilität
+✓ Trainingslast & Erholungsstatus
+✓ 7-Tage-Metriken (Schritte, Kalorienverbrauch, Stress, etc.)
+✓ Body Battery Analyse
+✓ Physiologische Leistungsindikatoren
+
+Viel Erfolg beim Training! 💪
+"""
+
+msg.set_content(email_body)
+msg.add_attachment(json.dumps(report, indent=2, ensure_ascii=False), filename="garmin_report_full.json")
 
 with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
     smtp.login(EMAIL_SENDER, EMAIL_PASSWORD)
     smtp.send_message(msg)
 
-print("✅ Garmin Maximalbericht gesendet und gespeichert.")
+print("✅ Garmin Wochenbericht gesendet und gespeichert.")
