@@ -1,10 +1,11 @@
 import os
 import json
 import smtplib
+import time
 from datetime import datetime, timedelta
 from email.message import EmailMessage
 
-from garminconnect import Garmin
+from garminconnect import Garmin, GarminConnectConnectionError, GarminConnectTooManyRequestsError
 
 from dotenv import load_dotenv
 
@@ -26,6 +27,23 @@ def normalize_max_metrics_entry(entry):
     return entry
 
 
+def authenticate_with_retry(client, tokenstore_path, max_attempts=3, base_delay_seconds=60):
+    """Retry Garmin login when Garmin responds with 429 rate-limit errors."""
+    for attempt in range(1, max_attempts + 1):
+        try:
+            client.login(tokenstore=tokenstore_path)
+            return
+        except (GarminConnectTooManyRequestsError, GarminConnectConnectionError) as exc:
+            error_text = str(exc).lower()
+            if "429" not in error_text and "rate limit" not in error_text:
+                raise
+            if attempt == max_attempts:
+                raise
+            wait_seconds = base_delay_seconds * attempt
+            print(f"⚠️ Garmin login rate limited (attempt {attempt}/{max_attempts}). Waiting {wait_seconds}s before retry...")
+            time.sleep(wait_seconds)
+
+
 def main():
     # --- Garmin Login ---
     GC_EMAIL = os.environ['GC_EMAIL']
@@ -38,7 +56,9 @@ def main():
 
     # --- Authenticate Garmin ---
     client = Garmin(GC_EMAIL, GC_PASSWORD)
-    client.login()
+    tokenstore_path = os.path.join(os.getcwd(), "garmin_tokens.json")
+    os.makedirs(os.path.dirname(tokenstore_path) or ".", exist_ok=True)
+    authenticate_with_retry(client, tokenstore_path)
     helper = HelperClass
 
     today = datetime.now().date()
