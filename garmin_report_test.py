@@ -125,10 +125,10 @@ print("=" * 60)
 with open("garmin_report_test.json", "w") as f:
     json.dump(report, f, indent=2, ensure_ascii=False)
 
-print("\n✅ Report als JSON gespeichert: garmin_report_test.json")
+print("\nReport als JSON gespeichert: garmin_report_test.json")
 
 # Validierung
-print("\n📊 Struktur-Validierung:")
+print("\nStruktur-Validierung:")
 
 # Check Activities
 print(f"✓ Activities: {report['activities']['summary']['totalActivities']} Trainings")
@@ -158,7 +158,7 @@ print("=" * 60)
 summary = HelperClass.format_report_summary(report)
 print(summary)
 
-print("\n✅ Alle Tests bestanden! Die Datenstruktur funktioniert richtig.")
+print("\nAlle Tests bestanden! Die Datenstruktur funktioniert richtig.")
 print("📝 Nächste Schritte:")
 print("   1. .env Datei mit Garmin-Credentials erstellen")
 print("   2. garmin_report_email.py ausführen")

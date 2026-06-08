@@ -47,12 +47,12 @@ class HelperClass(object):
         summary = []
         
         # Woche
-        summary.append(f"📅 **Trainingswoche:** {report.get('week', 'N/A')}\n")
+        summary.append(f"Trainingswoche: {report.get('week', 'N/A')}\n")
         
         # Aktivitäten
         if "activities" in report:
             acts = report["activities"]
-            summary.append(f"🏃 **Trainingsaktivitäten:** {acts['summary']['totalActivities']} Trainingseinheiten")
+            summary.append(f"Trainingsaktivitaeten: {acts['summary']['totalActivities']} Trainingseinheiten")
             summary.append(f"   - Gesamtdauer: {acts['summary']['totalDurationMinutes']} Minuten")
             summary.append(f"   - Gesamtstrecke: {acts['summary']['totalDistanceKm']} km")
             summary.append(f"   - Kalorien verbrannt: {acts['summary']['totalCalories']} kcal\n")
@@ -60,7 +60,7 @@ class HelperClass(object):
         # Schlaf
         if "sleep" in report and report["sleep"]["lastNight"]["totalHours"]:
             sleep = report["sleep"]["lastNight"]
-            summary.append(f"😴 **Schlaf (letzte Nacht):** {sleep['totalHours']} Stunden")
+            summary.append(f"Schlaf (letzte Nacht): {sleep['totalHours']} Stunden")
             summary.append(f"   - Tiefschlaf: {sleep['deepSleepHours']} h")
             summary.append(f"   - REM-Schlaf: {sleep['remSleepHours']} h")
             summary.append(f"   - Qualitätsscore: {sleep['qualityScore']}\n")
@@ -68,14 +68,14 @@ class HelperClass(object):
         # HRV Status
         if "hrv" in report:
             hrv = report["hrv"]
-            summary.append(f"❤️ **HRV Status:** {hrv['status']}")
+            summary.append(f"HRV Status: {hrv['status']}")
             summary.append(f"   - Wochenschaftlich durchschnitt: {hrv['weeklyAverage']}")
             summary.append(f"   - Letzte Nacht durchschnitt: {hrv['lastNightAverage']}\n")
         
         # Training Status
         if "trainingLoad" in report:
             tl = report["trainingLoad"]["trainingStatus"]
-            summary.append(f"💪 **Trainingsstatus:** {tl['status']}")
+            summary.append(f"Trainingsstatus: {tl['status']}")
             summary.append(f"   Feedback: {tl['feedbackPhrase']}\n")
         
         return "\n".join(summary)

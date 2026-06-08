@@ -1,0 +1,104 @@
+{
+  "week": "2026-06-07 - 2026-06-08",
+  "userProfile": {
+    "vo2max": 62.0,
+    "lactateThresholdHeartRate": 180,
+    "lactateThresholdSpeed": "3:46 min/km"
+  },
+  "activities": {
+    "summary": {
+      "totalActivities": 2,
+      "totalDurationMinutes": 95.94,
+      "totalDistanceKm": 2.63,
+      "totalCalories": 776.0,
+      "averageHeartRate": 118.0,
+      "totalElevationGainM": 0
+    },
+    "details": [
+      {
+        "start_time": "2026-06-07 22:13:43",
+        "activity_type": {
+          "typeId": 13,
+          "typeKey": "strength_training",
+          "parentTypeId": 29,
+          "isHidden": false,
+          "restricted": false,
+          "trimmable": false
+        },
+        "duration_min": 14.31,
+        "distance_km": 0.0,
+        "avg_hr": 116.0,
+        "max_hr": 133.0,
+        "cadence": null,
+        "elevation_gain_m": null,
+        "training_effect": null,
+        "aerobic_effect": 0.5,
+        "anaerobic_effect": 0.0,
+        "calories": 123.0,
+        "power_avg": null,
+        "temp_avg": null,
+        "splits": []
+      },
+      {
+        "start_time": "2026-06-07 20:03:23",
+        "activity_type": {
+          "typeId": 227,
+          "typeKey": "tennis_v2",
+          "parentTypeId": 219,
+          "isHidden": false,
+          "restricted": false,
+          "trimmable": true
+        },
+        "duration_min": 81.63,
+        "distance_km": 2.63,
+        "avg_hr": 120.0,
+        "max_hr": 184.0,
+        "cadence": 15.640625,
+        "elevation_gain_m": null,
+        "training_effect": null,
+        "aerobic_effect": 2.200000047683716,
+        "anaerobic_effect": 1.899999976158142,
+        "calories": 653.0,
+        "power_avg": null,
+        "temp_avg": null,
+        "splits": []
+      }
+    ]
+  },
+  "sleep": {
+    "lastNight": {
+      "totalHours": 0.0,
+      "deepSleepHours": 0.0,
+      "remSleepHours": 0.0,
+      "lightSleepHours": 0.0,
+      "awakeHours": 0.0,
+      "qualityScore": null,
+      "efficiencyPercent": null,
+      "avgRespirationRate": 15.0,
+      "avgSpO2Percent": null
+    }
+  },
+  "hrv": {
+    "weeklyAverage": 76,
+    "status": "BALANCED",
+    "lastNightAverage": 84
+  },
+  "trainingLoad": {
+    "monthly": {
+      "aerobicLow": 1006.536,
+      "aerobicHigh": 243.26552,
+      "anaerobic": 1089.6816,
+      "feedbackPhrase": "AEROBIC_HIGH_SHORTAGE"
+    },
+    "trainingStatus": {
+      "status": 5,
+      "feedbackPhrase": "RECOVERY_1"
+    },
+    "acuteTrainingLoad": {
+      "acwrPercent": 16,
+      "acwrStatus": "LOW",
+      "dailyAcute": 318,
+      "dailyChronic": 692
+    }
+  }
+}

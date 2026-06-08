@@ -7,7 +7,7 @@ os.environ.setdefault("EMAIL_SENDER", "test@example.com")
 os.environ.setdefault("EMAIL_PASSWORD", "test")
 os.environ.setdefault("EMAIL_RECEIVER", "test@example.com")
 
-from garmin_report_email import normalize_max_metrics_entry
+from garmin_report_email import extract_metric_value, normalize_max_metrics_entry
 
 
 SAMPLE = [
@@ -42,6 +42,11 @@ class NormalizeMaxMetricsTest(unittest.TestCase):
         entry = normalize_max_metrics_entry({"totalSteps": 7})
 
         self.assertEqual(entry["totalSteps"], 7)
+
+    def test_extract_metric_value_uses_safe_defaults_for_missing_data(self):
+        value = extract_metric_value([], ["totalSteps", "totalDistanceMeters"], default=0)
+
+        self.assertEqual(value, 0)
 
 
 if __name__ == "__main__":

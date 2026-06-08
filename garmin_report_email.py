@@ -16,15 +16,38 @@ load_dotenv()
 
 def normalize_max_metrics_entry(entry):
     """Return Garmin max-metrics values from either top-level or nested payloads."""
+    if isinstance(entry, list):
+        for item in entry:
+            normalized = normalize_max_metrics_entry(item)
+            if isinstance(normalized, dict) and normalized:
+                return normalized
+        return {}
+
     if not isinstance(entry, dict):
         return {}
 
-    for candidate_key in ("metrics", "dailyMetrics", "dailySummaryDTO"):
+    for candidate_key in ("metrics", "dailyMetrics", "dailySummaryDTO", "maxMetrics"):
         candidate = entry.get(candidate_key)
         if isinstance(candidate, dict):
             return candidate
+        if isinstance(candidate, list):
+            normalized = normalize_max_metrics_entry(candidate)
+            if isinstance(normalized, dict) and normalized:
+                return normalized
 
     return entry
+
+
+def extract_metric_value(entry, keys, default=0):
+    """Return the first available metric value or a safe default for missing Garmin data."""
+    normalized = normalize_max_metrics_entry(entry)
+
+    for key in keys:
+        value = normalized.get(key)
+        if value is not None:
+            return value
+
+    return default
 
 
 def authenticate_with_retry(client, tokenstore_path, max_attempts=3, base_delay_seconds=60):
@@ -40,7 +63,7 @@ def authenticate_with_retry(client, tokenstore_path, max_attempts=3, base_delay_
             if attempt == max_attempts:
                 raise
             wait_seconds = base_delay_seconds * attempt
-            print(f"⚠️ Garmin login rate limited (attempt {attempt}/{max_attempts}). Waiting {wait_seconds}s before retry...")
+            print(f"WARNING: Garmin login rate limited (attempt {attempt}/{max_attempts}). Waiting {wait_seconds}s before retry...")
             time.sleep(wait_seconds)
 
 
@@ -193,57 +216,6 @@ def main():
         avg_resting_hr_sleep = None
         avg_spo2_sleep = None
 
-    # --- Max Metrics ---
-    sevenDayMaxMetricList = []
-    for days in last7DateList:
-        sevenDayMaxMetricList.append(client.get_max_metrics(str(days)))
-
-    sevenDayMaxMetricList = json.dumps(sevenDayMaxMetricList)
-    sevenDayMaxMetricList = json.loads(sevenDayMaxMetricList)
-
-    sevenDaysSteps = []
-    totalWalkingDistance = []
-    total_calories = []
-    active_calories = []
-    bmr_calories = []
-    min_heartRate = []
-    max_heartRate = []
-    resting_heartRate = []
-    average_stress = []
-    percentage_stress = []
-    highest_bodyBattery = []
-    lowest_bodyBattery = []
-
-    for dic in sevenDayMaxMetricList:
-        normalized = normalize_max_metrics_entry(dic)
-        try:
-            sevenDaysSteps.append(normalized.get("totalSteps"))
-            totalWalkingDistance.append(round(normalized.get("totalDistanceMeters", 0) / 1000, 2))
-            total_calories.append(normalized.get("totalKilocalories"))
-            active_calories.append(normalized.get("activeKilocalories"))
-            bmr_calories.append(normalized.get("bmrKilocalories"))
-            min_heartRate.append(normalized.get("minHeartRate"))
-            max_heartRate.append(normalized.get("maxHeartRate"))
-            resting_heartRate.append(normalized.get("restingHeartRate"))
-            average_stress.append(normalized.get("averageStressLevel"))
-            percentage_stress.append(normalized.get("stressPercentage"))
-            highest_bodyBattery.append(normalized.get("bodyBatteryHighestValue"))
-            lowest_bodyBattery.append(normalized.get("bodyBatteryLowestValue"))
-        except Exception as e:
-            print(f"Fehler bei Max Metrics für {days}: {e}")
-            sevenDaysSteps.append(None)
-            totalWalkingDistance.append(None)
-            total_calories.append(None)
-            active_calories.append(None)
-            bmr_calories.append(None)
-            min_heartRate.append(None)
-            max_heartRate.append(None)
-            resting_heartRate.append(None)
-            average_stress.append(None)
-            percentage_stress.append(None)
-            highest_bodyBattery.append(None)
-            lowest_bodyBattery.append(None)
-
     # --- Assemble Report ---
     report = {
         "week": f"{last_sunday.isoformat()} - {today.isoformat()}",
@@ -258,7 +230,7 @@ def main():
                 "totalDurationMinutes": round(sum([a.get("duration_min", 0) for a in activity_details]), 2),
                 "totalDistanceKm": round(sum([a.get("distance_km", 0) for a in activity_details]), 2),
                 "totalCalories": round(sum([a.get("calories", 0) for a in activity_details]), 2),
-                "averageHeartRate": round(sum([a.get("avg_hr", 0) if a.get("avg_hr") else 0 for a in activity_details]) / max(len(activity_details), 1), 1) if activity_details else None,
+                "averageHeartRate": round(sum([a.get("avg_hr", 0) if a.get("avg_hr") else 0 for a in activity_details]) / max(len(activity_details), 1), 1) if activity_details else 0.0,
                 "totalElevationGainM": round(sum([a.get("elevation_gain_m", 0) if a.get("elevation_gain_m") else 0 for a in activity_details]), 2),
             },
             "details": activity_details,
@@ -299,30 +271,6 @@ def main():
                 "dailyChronic": dailyTrainingLoadChronic,
             },
         },
-        "sevenDaySummary": {
-            "dates": last7DateList,
-            "steps": sevenDaysSteps,
-            "distanceKm": totalWalkingDistance,
-            "calories": {
-                "total": total_calories,
-                "active": active_calories,
-                "bmr": bmr_calories,
-            },
-            "heartRate": {
-                "min": min_heartRate,
-                "max": max_heartRate,
-                "resting": resting_heartRate,
-                "avgByDay": [round((min_heartRate[i] + max_heartRate[i]) / 2, 1) if min_heartRate[i] and max_heartRate[i] else None for i in range(len(last7DateList))],
-            },
-            "stress": {
-                "average": average_stress,
-                "percentage": percentage_stress,
-            },
-            "bodyBattery": {
-                "highest": highest_bodyBattery,
-                "lowest": lowest_bodyBattery,
-            },
-        },
     }
 
     print(report)
@@ -330,7 +278,7 @@ def main():
     # --- Generiere Report Zusammenfassung ---
     report_summary = helper.format_report_summary(report)
     print("\n" + "=" * 60)
-    print("📊 GARMIN WOCHENBERICHT ZUSAMMENFASSUNG")
+    print("GARMIN WOCHENBERICHT ZUSAMMENFASSUNG")
     print("=" * 60)
     print(report_summary)
     print("=" * 60 + "\n")
@@ -341,7 +289,7 @@ def main():
 
     # --- Send Email ---
     msg = EmailMessage()
-    msg['Subject'] = f"🏃 Garmin Wochenbericht – {last_sunday.isoformat()} bis {today.isoformat()}"
+    msg['Subject'] = f"Garmin Wochenbericht - {last_sunday.isoformat()} bis {today.isoformat()}"
     msg['From'] = EMAIL_SENDER
     msg['To'] = EMAIL_RECEIVER
 
@@ -365,7 +313,7 @@ Dieser Bericht enthält:
 ✓ Body Battery Analyse
 ✓ Physiologische Leistungsindikatoren
 
-Viel Erfolg beim Training! 💪
+Viel Erfolg beim Training!
 """
 
     msg.set_content(email_body)
@@ -375,7 +323,7 @@ Viel Erfolg beim Training! 💪
         smtp.login(EMAIL_SENDER, EMAIL_PASSWORD)
         smtp.send_message(msg)
 
-    print("✅ Garmin Wochenbericht gesendet und gespeichert.")
+    print("Garmin Wochenbericht gesendet und gespeichert.")
 
 
 if __name__ == "__main__":
